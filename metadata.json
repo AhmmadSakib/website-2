@@ -1,0 +1,6 @@
+{
+  "name": "Ahmmad Sakib — Digital World",
+  "description": "Futuristic cinematic personal world, portfolio, interactive 3D headquarters, and private digital vault.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

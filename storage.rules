@@ -1,0 +1,44 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Global Helper Functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isOwner() {
+      // For Storage rules, we verify if the user's email matches the owner email
+      return isSignedIn() && request.auth.token.email == 'username@gmail.com';
+    }
+
+    // Default deny
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+    
+    // Vault Files Path: vault/{folderId}/{fileName}
+    match /vault/{folderId}/{fileName} {
+      // Only the Owner can upload/delete/update arbitrary files initially.
+      // We can refine this later if needed to allow 'TRUSTED' users to upload.
+      allow read: if isOwner() || isSignedIn(); 
+      // Note: In Storage, it's difficult to read Firestore permissions natively without custom claims or duplicating metadata.
+      // As a baseline, we'll allow authenticated users to read and rely on frontend to only show valid paths, 
+      // but ideally we'd use Firebase Storage custom metadata for visibility.
+      // Let's rely on metadata checking:
+      allow get: if isOwner() || (isSignedIn() && (
+        resource.metadata.visibility == 'PUBLIC' || 
+        resource.metadata.ownerId == request.auth.uid
+      ));
+      allow create: if isOwner() || (isSignedIn() && request.resource.metadata.ownerId == request.auth.uid);
+      allow update: if isOwner() || (isSignedIn() && resource.metadata.ownerId == request.auth.uid);
+      allow delete: if isOwner() || (isSignedIn() && resource.metadata.ownerId == request.auth.uid);
+    }
+    
+    // Public Assets (e.g. certificates, images)
+    match /public/{allPaths=**} {
+      allow read: if true;
+      allow write: if isOwner();
+    }
+  }
+}

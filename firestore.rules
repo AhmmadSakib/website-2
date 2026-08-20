@@ -1,0 +1,172 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Global Hardened Security Helpers
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner() {
+      return isSignedIn() && (
+        request.auth.token.role == 'OWNER' ||
+        request.auth.token.owner == true ||
+        request.auth.token.email == 'ahmmadsakib18524@gmail.com' ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'OWNER')
+      );
+    }
+
+    function hasActivePermission(resourceId, action) {
+      return isSignedIn() && (
+        isOwner() ||
+        exists(/databases/$(database)/documents/permissions/$(request.auth.uid + '_' + resourceId))
+      );
+    }
+
+    // Entity Validators
+    function isValidUser(data) {
+      return data.keys().hasAll(['uid', 'email', 'role', 'status']) &&
+        data.uid is string &&
+        data.email is string &&
+        data.role in ['OWNER', 'TRUSTED', 'LIMITED'] &&
+        data.status in ['pending', 'active', 'suspended', 'disabled', 'denied'];
+    }
+
+    function isValidPermission(data) {
+      return data.keys().hasAll(['userId', 'resourceId', 'resourceType', 'permissions', 'grantedBy', 'createdAt']) &&
+        data.userId is string &&
+        data.resourceId is string &&
+        data.resourceType in ['FILE', 'FOLDER', 'PROJECT', 'CERTIFICATE', 'VIDEO'] &&
+        data.permissions is list &&
+        data.grantedBy is string;
+    }
+
+    function isValidProject(data) {
+      return data.keys().hasAll(['title', 'category', 'description']) &&
+        data.title is string && data.title.size() <= 120 &&
+        data.category in ['WEB', 'DESIGN', '3D', 'APP', 'AI', 'OTHER'] &&
+        data.description is string;
+    }
+
+    function isValidCertificate(data) {
+      return data.keys().hasAll(['title', 'issuer', 'issueDate']) &&
+        data.title is string && data.title.size() <= 150 &&
+        data.issuer is string &&
+        data.issueDate is string;
+    }
+
+    function isValidVaultFile(data) {
+      return data.keys().hasAll(['name', 'size', 'ownerId', 'folderId', 'visibility']) &&
+        data.name is string && data.name.size() <= 250 &&
+        data.size is number &&
+        data.visibility in ['PRIVATE', 'SHARED', 'PUBLIC'];
+    }
+
+    function isValidActivityLog(data) {
+      return data.keys().hasAll(['action', 'timestamp']) &&
+        data.action is string &&
+        data.timestamp is string;
+    }
+
+    function isValidMediaLink(data) {
+      return data.keys().hasAll(['title', 'url', 'embedUrl', 'platform', 'username']) &&
+        data.title is string && data.title.size() <= 200 &&
+        data.url is string && data.url.size() <= 1000 &&
+        data.embedUrl is string && data.embedUrl.size() <= 1000 &&
+        data.platform in ['YOUTUBE', 'SPOTIFY', 'SOUNDCLOUD', 'OTHER'] &&
+        data.username is string && data.username.size() <= 100;
+    }
+
+    // User Collection Rules
+    match /users/{userId} {
+      allow get: if isSignedIn() && (request.auth.uid == userId || isOwner());
+      allow list: if isOwner();
+      allow create: if isSignedIn() && request.auth.uid == userId && isValidUser(incoming()) && (incoming().role == 'LIMITED' || isOwner());
+      allow update: if isOwner() || (
+        isSignedIn() && request.auth.uid == userId && 
+        incoming().role == existing().role && 
+        incoming().status == existing().status &&
+        isValidUser(incoming())
+      );
+      allow delete: if isOwner();
+    }
+
+    // Permissions Collection Rules
+    match /permissions/{permissionId} {
+      allow read: if isOwner() || (isSignedIn() && (resource.data.userId == request.auth.uid || resource.data.userEmail == request.auth.token.email));
+      allow write: if isOwner() && isValidPermission(incoming());
+      allow delete: if isOwner();
+    }
+
+    // Projects Collection Rules
+    match /projects/{projectId} {
+      allow read: if resource.data.visibility == 'PUBLIC' || isOwner();
+      allow write: if isOwner() && isValidProject(incoming());
+      allow delete: if isOwner();
+    }
+
+    // Certificates Collection Rules
+    match /certificates/{certId} {
+      allow read: if resource.data.visibility == 'PUBLIC' || isOwner();
+      allow write: if isOwner() && isValidCertificate(incoming());
+      allow delete: if isOwner();
+    }
+
+    // Vault Files Collection Rules
+    match /files/{fileId} {
+      allow read: if resource.data.visibility == 'PUBLIC' || isOwner() || (
+        isSignedIn() && (
+          resource.data.ownerId == request.auth.uid ||
+          (resource.data.visibility == 'SHARED' && hasActivePermission(fileId, 'READ'))
+        )
+      );
+      allow create: if isOwner() || (
+        isSignedIn() && incoming().ownerId == request.auth.uid && isValidVaultFile(incoming())
+      );
+      allow update: if isOwner() || (
+        isSignedIn() && existing().ownerId == request.auth.uid && isValidVaultFile(incoming())
+      );
+      allow delete: if isOwner() || (isSignedIn() && existing().ownerId == request.auth.uid);
+    }
+
+    // Activity Logs Collection Rules (Immutable Audit Trail)
+    match /activityLogs/{logId} {
+      allow read: if isOwner();
+      allow create: if isSignedIn() && isValidActivityLog(incoming());
+      allow update, delete: if false; // Append-only audit logs
+    }
+
+    // Media Links Collection Rules (YouTube Videos & Spotify Playlists)
+    match /mediaLinks/{linkId} {
+      allow read: if true; // Publicly accessible streaming links
+      allow create: if isValidMediaLink(incoming());
+      allow update: if isOwner() || (
+        isSignedIn() && (
+          (existing().userId != null && existing().userId == request.auth.uid) ||
+          incoming().diff(existing()).affectedKeys().hasOnly(['likes'])
+        ) && isValidMediaLink(incoming())
+      );
+      allow delete: if isOwner() || (
+        isSignedIn() && existing().userId != null && existing().userId == request.auth.uid
+      );
+    }
+  }
+}

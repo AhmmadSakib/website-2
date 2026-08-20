@@ -1,0 +1,181 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile in the Digital World system",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Firebase Auth UID" },
+        "displayName": { "type": "string", "description": "User display name" },
+        "email": { "type": "string", "description": "User email address" },
+        "photoURL": { "type": "string", "description": "Avatar URL" },
+        "role": { "type": "string", "enum": ["OWNER", "TRUSTED", "LIMITED"], "description": "Access tier" },
+        "status": { "type": "string", "enum": ["active", "disabled", "pending"], "description": "Account status" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" },
+        "lastLoginAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "role"]
+    },
+    "Permission": {
+      "title": "Permission",
+      "description": "Granular resource access permission grant",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string", "description": "Subject user UID or Email" },
+        "userEmail": { "type": "string", "description": "Subject user email" },
+        "resourceId": { "type": "string", "description": "ID of the target protected entity" },
+        "resourceName": { "type": "string", "description": "Friendly name of the resource" },
+        "resourceType": { "type": "string", "enum": ["FILE", "FOLDER", "PROJECT", "CERTIFICATE"], "description": "Entity category" },
+        "permissions": { "type": "array", "description": "List of granted capabilities: READ, DOWNLOAD, WRITE, DELETE, SHARE" },
+        "grantedBy": { "type": "string", "description": "Owner UID who provisioned access" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "expiresAt": { "type": "string", "description": "Optional ISO expiry timestamp" }
+      },
+      "required": ["userId", "resourceId", "resourceType", "permissions", "grantedBy", "createdAt"]
+    },
+    "Project": {
+      "title": "Project",
+      "description": "Portfolio project item",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string", "maxLength": 100 },
+        "category": { "type": "string", "enum": ["Web", "Design", "3D", "App", "AI"] },
+        "description": { "type": "string", "maxLength": 500 },
+        "longDescription": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "tags": { "type": "array" },
+        "liveUrl": { "type": "string" },
+        "githubUrl": { "type": "string" },
+        "featured": { "type": "boolean" },
+        "order": { "type": "number" },
+        "visibility": { "type": "string", "enum": ["PUBLIC", "PRIVATE", "SHARED"] },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["title", "category", "description"]
+    },
+    "Certificate": {
+      "title": "Certificate",
+      "description": "Verified credential or certificate record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string", "maxLength": 150 },
+        "issuer": { "type": "string", "maxLength": 100 },
+        "category": { "type": "string" },
+        "issueDate": { "type": "string" },
+        "credentialId": { "type": "string" },
+        "credentialUrl": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "downloadUrl": { "type": "string" },
+        "description": { "type": "string" },
+        "skills": { "type": "array" },
+        "visibility": { "type": "string", "enum": ["PUBLIC", "PRIVATE", "SHARED"] },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["title", "issuer", "issueDate"]
+    },
+    "VaultFile": {
+      "title": "VaultFile",
+      "description": "Private or shared file stored in the Digital Vault",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string", "maxLength": 200 },
+        "type": { "type": "string" },
+        "mimeType": { "type": "string" },
+        "size": { "type": "number" },
+        "storagePath": { "type": "string" },
+        "downloadUrl": { "type": "string" },
+        "ownerId": { "type": "string" },
+        "folderId": { "type": "string" },
+        "visibility": { "type": "string", "enum": ["PRIVATE", "SHARED", "PUBLIC"] },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" },
+        "contentPreview": { "type": "string" }
+      },
+      "required": ["name", "size", "ownerId", "folderId", "visibility"]
+    },
+    "ActivityLog": {
+      "title": "ActivityLog",
+      "description": "Audit and security log record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "userEmail": { "type": "string" },
+        "actor": { "type": "string" },
+        "targetUser": { "type": "string" },
+        "resource": { "type": "string" },
+        "action": { "type": "string" },
+        "resourceType": { "type": "string" },
+        "resourceId": { "type": "string" },
+        "targetResource": { "type": "string" },
+        "details": { "type": "string" },
+        "ipAddress": { "type": "string" },
+        "timestamp": { "type": "string" },
+        "status": { "type": "string" }
+      },
+      "required": ["action", "timestamp"]
+    },
+    "MediaLink": {
+      "title": "MediaLink",
+      "description": "YouTube video and Spotify playlist / audio stream links uploaded with usernames",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string", "maxLength": 200 },
+        "url": { "type": "string" },
+        "embedUrl": { "type": "string" },
+        "platform": { "type": "string", "enum": ["YOUTUBE", "SPOTIFY", "SOUNDCLOUD", "OTHER"] },
+        "mediaType": { "type": "string", "enum": ["VIDEO", "PLAYLIST", "TRACK", "ALBUM", "PODCAST"] },
+        "username": { "type": "string", "maxLength": 100 },
+        "userId": { "type": "string" },
+        "userAvatar": { "type": "string" },
+        "description": { "type": "string" },
+        "category": { "type": "string" },
+        "tags": { "type": "array" },
+        "thumbnailUrl": { "type": "string" },
+        "likes": { "type": "number" },
+        "featured": { "type": "boolean" },
+        "visibility": { "type": "string", "enum": ["PUBLIC", "PRIVATE", "SHARED"] },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["title", "url", "embedUrl", "platform", "username"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profile with role-based access control"
+    },
+    "/permissions/{permissionId}": {
+      "schema": "Permission",
+      "description": "Explicit permission grants on files, folders, projects, and certificates"
+    },
+    "/projects/{projectId}": {
+      "schema": "Project",
+      "description": "Portfolio projects public and editable by owner"
+    },
+    "/certificates/{certId}": {
+      "schema": "Certificate",
+      "description": "Certifications and verified credentials"
+    },
+    "/files/{fileId}": {
+      "schema": "VaultFile",
+      "description": "Secure files stored in digital vault"
+    },
+    "/activityLogs/{logId}": {
+      "schema": "ActivityLog",
+      "description": "Security audit and system activity logs"
+    },
+    "/mediaLinks/{linkId}": {
+      "schema": "MediaLink",
+      "description": "YouTube videos, Spotify playlists and user uploaded streams"
+    }
+  }
+}
