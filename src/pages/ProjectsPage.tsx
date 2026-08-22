@@ -11,6 +11,7 @@ import {
   Sparkles,
   Plus
 } from 'lucide-react';
+import { motion } from 'motion/react';
 import { ProjectCard } from '../components/projects/ProjectCard';
 import { ProjectDetails } from '../components/projects/ProjectDetails';
 import { Cyber3DSystem } from '../components/3d/Cyber3DSystem';
@@ -18,6 +19,7 @@ import { INITIAL_PROJECTS, STATS_CONFIG } from '../config/personalData';
 import { ProjectItem, ProjectCategory } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { db, collection, onSnapshot } from '../lib/firebase';
+import { pageTransitions, staggerContainer, staggerItem } from '../lib/motion';
 
 interface ProjectsPageProps {
   initialSlug?: string;
@@ -127,30 +129,46 @@ export const ProjectsPage: React.FC<ProjectsPageProps> = ({ initialSlug, onNavig
   }
 
   return (
-    <div className="min-h-screen text-[#F1F1F1] pb-24 px-4 sm:px-8 lg:px-12 pt-8 lg:pt-12">
-      <div className="w-full max-w-7xl mx-auto space-y-12">
+    <motion.div 
+      className="min-h-screen text-[#F1F1F1] pb-24 px-4 sm:px-8 lg:px-12 pt-8 lg:pt-12 relative overflow-hidden"
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      variants={pageTransitions}
+    >
+      
+      {/* Ambient Gradients */}
+      <div className="absolute top-0 right-1/4 w-[600px] h-[600px] bg-[#E51F2A]/10 rounded-full blur-[160px] pointer-events-none z-0" />
+      <div className="absolute top-1/3 left-10 w-[500px] h-[500px] bg-[#E51F2A]/5 rounded-full blur-[160px] pointer-events-none z-0" />
+      
+      <div className="w-full max-w-7xl relative z-10 mx-auto space-y-12">
         
         {/* Header with 3D Sculpture Badge */}
-        <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pb-8 border-b border-white/10">
+        <motion.div 
+          variants={staggerContainer}
+          initial="hidden"
+          animate="show"
+          className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pb-8 border-b border-white/10"
+        >
           <div className="max-w-2xl space-y-3">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#111416] border border-[#E51F2A]/30 text-[#E51F2A] text-xs font-mono tracking-widest uppercase">
+            <motion.div variants={staggerItem} className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#111416] border border-[#E51F2A]/30 text-[#E51F2A] text-xs font-mono tracking-widest uppercase">
               <span className="w-1.5 h-1.5 rounded-full bg-[#E51F2A]" />
               ENGINEERING ARTIFACTS
-            </div>
+            </motion.div>
 
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-heading font-black tracking-tight">
+            <motion.h1 variants={staggerItem} className="text-4xl sm:text-5xl lg:text-6xl font-heading font-black tracking-tight">
               <span className="text-white">PROJECTS </span>
               <span className="text-[#E51F2A] drop-shadow-[0_0_20px_rgba(229,31,42,0.3)]">
                 INDEX
               </span>
-            </h1>
+            </motion.h1>
 
-            <p className="text-base sm:text-lg text-[#A8A1A1] leading-relaxed">
+            <motion.p variants={staggerItem} className="text-base sm:text-lg text-[#A8A1A1] leading-relaxed">
               Full-stack architectures, interactive 3D spatial environments, autonomous agents, and zero-trust cloud systems.
-            </p>
+            </motion.p>
           </div>
 
-          <div className="flex items-center gap-4 shrink-0">
+          <motion.div variants={staggerItem} className="flex items-center gap-4 shrink-0">
             {isOwner() && onNavigate && (
               <button
                 onClick={() => onNavigate('/admin/projects')}
@@ -163,11 +181,15 @@ export const ProjectsPage: React.FC<ProjectsPageProps> = ({ initialSlug, onNavig
             <div className="hidden sm:block w-32 h-32">
               <Cyber3DSystem variant="projects" height={120} />
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
         {/* Filter and Control Bar */}
-        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 bg-[#111416]/80 backdrop-blur-md p-4 rounded-2xl border border-white/10">
+        <motion.div 
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 bg-[#111416]/80 backdrop-blur-md p-4 rounded-2xl border border-white/10"
+        >
           
           {/* Category Filter Pills */}
           <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto">
@@ -200,7 +222,7 @@ export const ProjectsPage: React.FC<ProjectsPageProps> = ({ initialSlug, onNavig
                 placeholder="Search projects or tech..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 rounded-xl bg-[#080808] border border-white/10 text-xs sm:text-sm text-white placeholder-[#A8A1A1]/60 focus:outline-none focus:border-[#E51F2A]"
+                className="w-full pl-9 pr-3 py-2 rounded-xl bg-[#080808] border border-white/10 text-xs sm:text-sm text-white placeholder-[#A8A1A1]/60 focus:outline-none focus:border-[#E51F2A] transition-colors"
               />
             </div>
 
@@ -245,11 +267,15 @@ export const ProjectsPage: React.FC<ProjectsPageProps> = ({ initialSlug, onNavig
             </div>
           </div>
 
-        </div>
+        </motion.div>
 
         {/* Project Grid */}
         {filteredProjects.length === 0 ? (
-          <div className="py-20 text-center rounded-2xl bg-[#111416]/50 border border-white/5 space-y-3">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="py-20 text-center rounded-2xl bg-[#111416]/50 border border-white/5 space-y-3"
+          >
             <p className="text-base text-[#A8A1A1]">No projects found matching your filter criteria.</p>
             <button
               onClick={() => { setActiveCategory('ALL'); setSearchQuery(''); }}
@@ -257,26 +283,37 @@ export const ProjectsPage: React.FC<ProjectsPageProps> = ({ initialSlug, onNavig
             >
               Reset Filters
             </button>
-          </div>
+          </motion.div>
         ) : (
-          <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' : 'space-y-4'}>
+          <motion.div 
+            variants={staggerContainer}
+            initial="hidden"
+            animate="show"
+            className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' : 'space-y-4'}
+          >
             {filteredProjects.map((project) => (
-              <ProjectCard
-                key={project.id}
-                project={project}
-                onSelect={(proj) => {
-                  setSelectedProject(proj);
-                  if (onNavigate) onNavigate(`/projects/${proj.slug}`);
-                }}
-                viewMode={viewMode}
-              />
+              <motion.div key={project.id} variants={staggerItem}>
+                <ProjectCard
+                  project={project}
+                  onSelect={(proj) => {
+                    setSelectedProject(proj);
+                    if (onNavigate) onNavigate(`/projects/${proj.slug}`);
+                  }}
+                  viewMode={viewMode}
+                />
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         )}
 
         {/* Bottom Statistics Panel */}
         <section className="pt-8">
-          <div className="relative p-8 sm:p-10 rounded-3xl bg-[#111416] border border-white/10 overflow-hidden shadow-2xl">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            className="relative p-8 sm:p-10 rounded-3xl bg-[#111416] border border-white/10 overflow-hidden shadow-2xl"
+          >
             <div className="absolute top-0 right-0 w-80 h-80 bg-[#8C0B12]/15 rounded-full blur-[90px] pointer-events-none" />
 
             <div className="relative z-10 grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 divide-y sm:divide-y-0 sm:divide-x divide-white/10">
@@ -297,10 +334,10 @@ export const ProjectsPage: React.FC<ProjectsPageProps> = ({ initialSlug, onNavig
                 </div>
               ))}
             </div>
-          </div>
+          </motion.div>
         </section>
 
       </div>
-    </div>
+    </motion.div>
   );
 };

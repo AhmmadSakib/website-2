@@ -1,0 +1,1 @@
+sed -i 's/<div className="min-h-screen bg-\[#080808\] text-\[#F1F1F1\] flex flex-col lg:flex-row">/<div className="min-h-screen bg-\[#080808\] text-\[#F1F1F1\] flex flex-col pt-32 px-4 sm:px-8 lg:px-14">/g' src/pages/AdminPage.tsx

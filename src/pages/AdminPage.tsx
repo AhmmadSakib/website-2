@@ -144,83 +144,62 @@ export const AdminPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#080808] text-[#F1F1F1] flex flex-col lg:flex-row">
+    <div className="min-h-screen bg-[#080808] text-[#F1F1F1] flex flex-col pt-32 px-4 sm:px-8 lg:px-14">
       
-      {/* Admin Sidebar Navigation */}
-      <aside className="w-full lg:w-64 bg-[#111416] border-b lg:border-b-0 lg:border-r border-white/10 shrink-0 p-4 lg:p-6 flex flex-col justify-between select-none">
-        <div className="space-y-6">
-          
-          {/* Header Title */}
-          <div className="flex items-center gap-3 px-2">
-            <div className="w-9 h-9 rounded-xl bg-[#E51F2A]/15 text-[#E51F2A] border border-[#E51F2A]/40 flex items-center justify-center font-black text-sm shadow-[0_0_12px_rgba(229,31,42,0.3)]">
-              AS
-            </div>
-            <div>
-              <div className="text-xs font-mono tracking-widest text-[#E51F2A] uppercase font-bold">HQ CONSOLE</div>
-              <div className="text-sm font-heading font-bold text-white">Owner Dashboard</div>
-            </div>
+      {/* Admin Horizontal Navigation */}
+      <div className="w-full mb-8">
+        <div className="flex items-center gap-3 mb-6 px-2">
+          <div className="w-10 h-10 rounded-xl bg-[#E51F2A]/15 text-[#E51F2A] border border-[#E51F2A]/40 flex items-center justify-center font-black text-sm shadow-[0_0_12px_rgba(229,31,42,0.3)]">
+            AS
           </div>
-
-          {/* Navigation Items */}
-          <nav className="space-y-1">
-            {[
-              { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-              { id: 'files', label: 'Files', icon: FolderLock },
-              { id: 'projects', label: 'Projects', icon: Briefcase },
-              { id: 'certificates', label: 'Certificates', icon: Award },
-              { id: 'media', label: 'Media & Streams', icon: Radio },
-              { id: 'users', label: 'Users', icon: Users },
-              { id: 'permissions', label: 'Permissions', icon: KeyRound, badge: permissions.length },
-              { id: 'activity', label: 'Activity', icon: Activity },
-              { id: 'settings', label: 'Settings', icon: Settings },
-            ].map((item) => {
-              const Icon = item.icon;
-              const isActive = activeTab === item.id;
-              return (
-                <button
-                  key={item.id}
-                  id={`admin-tab-${item.id}`}
-                  onClick={() => setActiveTab(item.id as AdminTab)}
-                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all cursor-pointer ${
-                    isActive 
-                      ? 'bg-[#E51F2A] text-white font-bold shadow-[0_0_20px_rgba(229,31,42,0.35)]' 
-                      : 'text-[#A8A1A1] hover:text-white hover:bg-white/5'
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <Icon size={16} className={isActive ? 'text-white' : 'text-[#A8A1A1]'} />
-                    <span>{item.label}</span>
-                  </div>
-                  {item.badge !== undefined && (
-                    <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded-md ${
-                      isActive ? 'bg-black/30 text-white' : 'bg-[#080808] text-[#E51F2A] border border-[#E51F2A]/30'
-                    }`}>
-                      {item.badge}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </nav>
-        </div>
-
-        {/* Bottom Status Box */}
-        <div className="pt-6 border-t border-white/10 mt-6 lg:mt-0 space-y-3">
-          <div className="flex items-center justify-between text-[11px] font-mono text-[#A8A1A1]">
-            <span>Security Status:</span>
-            <span className="text-white font-bold flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#E51F2A] animate-pulse" />
-              PROTECTED
-            </span>
-          </div>
-          <div className="text-[10px] font-mono text-[#A8A1A1] truncate">
-            Owner: {profile?.email || PERSONAL_CONFIG.ownerEmail}
+          <div>
+            <div className="text-xs font-mono tracking-widest text-[#E51F2A] uppercase font-bold">HQ CONSOLE</div>
+            <div className="text-sm font-heading font-bold text-white">Owner Dashboard</div>
           </div>
         </div>
-      </aside>
+
+        <nav className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none border-b border-white/10">
+          {[
+            { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+            { id: 'files', label: 'Files', icon: FolderLock },
+            { id: 'projects', label: 'Projects', icon: Briefcase },
+            { id: 'certificates', label: 'Certificates', icon: Award },
+            { id: 'media', label: 'Media', icon: Radio },
+            { id: 'users', label: 'Users', icon: Users },
+            { id: 'permissions', label: 'Permissions', icon: KeyRound, badge: permissions.length },
+            { id: 'activity', label: 'Activity', icon: Activity },
+            { id: 'settings', label: 'Settings', icon: Settings },
+          ].map((item) => {
+            const Icon = item.icon;
+            const isActive = activeTab === item.id;
+            return (
+              <button
+                key={item.id}
+                id={`admin-tab-${item.id}`}
+                onClick={() => setActiveTab(item.id as AdminTab)}
+                className={`flex items-center gap-2 px-4 py-3 rounded-t-xl text-xs font-medium transition-all cursor-pointer border-b-2 whitespace-nowrap ${
+                  isActive 
+                    ? 'bg-[#E51F2A]/10 text-white font-bold border-[#E51F2A]' 
+                    : 'text-[#A8A1A1] border-transparent hover:text-white hover:bg-white/5'
+                }`}
+              >
+                <Icon size={16} className={isActive ? 'text-[#E51F2A]' : 'text-[#A8A1A1]'} />
+                <span>{item.label}</span>
+                {item.badge !== undefined && (
+                  <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded-md ml-1 ${
+                    isActive ? 'bg-[#E51F2A] text-white' : 'bg-[#080808] text-[#E51F2A] border border-[#E51F2A]/30'
+                  }`}>
+                    {item.badge}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </nav>
+      </div>
 
       {/* Main Content Area */}
-      <main className="flex-1 p-4 sm:p-8 lg:p-10 overflow-y-auto max-w-7xl">
+      <main className="flex-1 pb-28 max-w-7xl mx-auto w-full">
         
         {/* TAB 1: DASHBOARD OVERVIEW */}
         {activeTab === 'dashboard' && (

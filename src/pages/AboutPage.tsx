@@ -13,8 +13,10 @@ import {
   Download,
   Calendar
 } from 'lucide-react';
+import { motion } from 'motion/react';
 import { PERSONAL_CONFIG, SKILL_CATEGORIES, TIMELINE_CONFIG, STATS_CONFIG } from '../config/personalData';
 import { Cyber3DSystem } from '../components/3d/Cyber3DSystem';
+import { pageTransitions, staggerContainer, staggerItem } from '../lib/motion';
 
 export const AboutPage: React.FC = () => {
   const [timelineFilter, setTimelineFilter] = useState<'All' | 'Experience' | 'Education' | 'Achievements'>('All');
@@ -24,34 +26,58 @@ export const AboutPage: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen text-[#F1F1F1] pb-24 px-4 sm:px-8 lg:px-12 pt-8 lg:pt-12">
-      <div className="w-full max-w-7xl mx-auto space-y-16">
+    <motion.div 
+      className="min-h-screen text-[#F1F1F1] pb-24 px-4 sm:px-8 lg:px-12 pt-8 lg:pt-12 relative overflow-hidden"
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      variants={pageTransitions}
+    >
+      
+      {/* Ambient Gradients */}
+      <div className="absolute top-0 right-1/4 w-[600px] h-[600px] bg-[#E51F2A]/10 rounded-full blur-[160px] pointer-events-none z-0" />
+      <div className="absolute top-1/3 left-10 w-[500px] h-[500px] bg-[#E51F2A]/5 rounded-full blur-[160px] pointer-events-none z-0" />
+      
+      <div className="w-full max-w-7xl relative z-10 mx-auto space-y-16">
         
         {/* Header */}
-        <div className="relative pb-8 border-b border-white/10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <motion.div 
+          variants={staggerContainer}
+          initial="hidden"
+          animate="show"
+          className="relative pb-8 border-b border-white/10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6"
+        >
           <div className="max-w-2xl space-y-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#111416] border border-[#E51F2A]/30 text-[#E51F2A] text-xs font-mono uppercase tracking-widest">
+            <motion.div variants={staggerItem} className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#111416] border border-[#E51F2A]/30 text-[#E51F2A] text-xs font-mono uppercase tracking-widest">
               <span className="w-1.5 h-1.5 rounded-full bg-[#E51F2A]" />
               ABOUT ME
-            </div>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-heading font-extrabold text-white tracking-[-0.035em]">
+            </motion.div>
+            <motion.h1 variants={staggerItem} className="text-4xl sm:text-5xl lg:text-6xl font-heading font-extrabold text-white tracking-[-0.035em]">
               About <span className="text-[#E51F2A]">Me</span>
-            </h1>
-            <p className="text-base sm:text-lg text-[#A8A1A1]">
+            </motion.h1>
+            <motion.p variants={staggerItem} className="text-base sm:text-lg text-[#A8A1A1]">
               Get to know my engineering philosophy, background, and vision.
-            </p>
+            </motion.p>
           </div>
 
-          <div className="shrink-0 hidden sm:block w-36 h-36">
+          <motion.div 
+            variants={staggerItem}
+            className="shrink-0 hidden sm:block w-36 h-36"
+          >
             <Cyber3DSystem variant="minimal" height={130} />
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
         {/* Profile & Biography Section */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
           
           {/* Left Side: Biography & Info Rows */}
-          <div className="lg:col-span-7 p-8 sm:p-10 rounded-3xl bg-[#111416]/90 border border-white/10 flex flex-col justify-between space-y-8 shadow-xl">
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            className="lg:col-span-7 p-8 sm:p-10 rounded-3xl bg-[#111416]/90 border border-white/10 flex flex-col justify-between space-y-8 shadow-xl"
+          >
             <div className="space-y-6">
               <div className="space-y-2">
                 <h2 className="text-2xl sm:text-3xl font-heading font-bold text-white tracking-tight">
@@ -69,7 +95,7 @@ export const AboutPage: React.FC = () => {
 
             {/* Information Rows */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-6 border-t border-white/10">
-              <div className="flex items-center gap-3 p-3.5 rounded-xl bg-[#080808]/60 border border-white/5">
+              <div className="flex items-center gap-3 p-3.5 rounded-xl bg-[#080808]/60 border border-white/5 hover:-translate-y-0.5 hover:border-white/20 transition-all duration-300">
                 <MapPin className="w-5 h-5 text-[#E51F2A] shrink-0" />
                 <div className="truncate">
                   <div className="text-[11px] text-[#A8A1A1] uppercase font-mono">Location</div>
@@ -77,7 +103,7 @@ export const AboutPage: React.FC = () => {
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 p-3.5 rounded-xl bg-[#080808]/60 border border-white/5">
+              <div className="flex items-center gap-3 p-3.5 rounded-xl bg-[#080808]/60 border border-white/5 hover:-translate-y-0.5 hover:border-white/20 transition-all duration-300">
                 <Briefcase className="w-5 h-5 text-[#E51F2A] shrink-0" />
                 <div className="truncate">
                   <div className="text-[11px] text-[#A8A1A1] uppercase font-mono">Experience</div>
@@ -85,7 +111,7 @@ export const AboutPage: React.FC = () => {
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 p-3.5 rounded-xl bg-[#080808]/60 border border-white/5">
+              <div className="flex items-center gap-3 p-3.5 rounded-xl bg-[#080808]/60 border border-white/5 hover:-translate-y-0.5 hover:border-white/20 transition-all duration-300">
                 <Mail className="w-5 h-5 text-[#E51F2A] shrink-0" />
                 <div className="truncate">
                   <div className="text-[11px] text-[#A8A1A1] uppercase font-mono">Email</div>
@@ -93,7 +119,7 @@ export const AboutPage: React.FC = () => {
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 p-3.5 rounded-xl bg-[#080808]/60 border border-white/5">
+              <div className="flex items-center gap-3 p-3.5 rounded-xl bg-[#080808]/60 border border-white/5 hover:-translate-y-0.5 hover:border-white/20 transition-all duration-300">
                 <Clock className="w-5 h-5 text-[#E51F2A] shrink-0" />
                 <div className="truncate">
                   <div className="text-[11px] text-[#A8A1A1] uppercase font-mono">Availability</div>
@@ -101,14 +127,19 @@ export const AboutPage: React.FC = () => {
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Right Side: 3D Visual Architectural Core Node */}
-          <div className="lg:col-span-5 p-8 rounded-3xl bg-[#111416]/90 border border-white/10 flex flex-col items-center justify-center text-center relative overflow-hidden group shadow-xl">
+          <motion.div 
+            initial={{ opacity: 0, x: 20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            className="lg:col-span-5 p-8 rounded-3xl bg-[#111416]/90 border border-white/10 flex flex-col items-center justify-center text-center relative overflow-hidden group shadow-xl"
+          >
             {/* Background Red Glow */}
-            <div className="absolute inset-0 bg-radial from-[#8C0B12]/20 to-transparent blur-2xl pointer-events-none" />
+            <div className="absolute inset-0 bg-radial from-[#8C0B12]/20 to-transparent blur-2xl pointer-events-none transition-opacity duration-500 group-hover:opacity-100 opacity-60" />
 
-            <div className="relative z-10 w-48 h-48 sm:w-56 sm:h-56 rounded-full p-1.5 bg-gradient-to-b from-[#E51F2A] to-white/10 mb-6 shadow-[0_0_40px_rgba(229,31,42,0.25)]">
+            <div className="relative z-10 w-48 h-48 sm:w-56 sm:h-56 rounded-full p-1.5 bg-gradient-to-b from-[#E51F2A] to-white/10 mb-6 shadow-[0_0_40px_rgba(229,31,42,0.25)] group-hover:shadow-[0_0_60px_rgba(229,31,42,0.4)] transition-shadow duration-500">
               <div className="w-full h-full rounded-full bg-[#080808] flex flex-col items-center justify-center overflow-hidden border border-white/10">
                 <Cyber3DSystem variant="about" height={190} />
               </div>
@@ -124,27 +155,34 @@ export const AboutPage: React.FC = () => {
             </div>
 
             <div className="relative z-10 mt-6 flex items-center gap-2 text-xs font-mono text-[#E51F2A] bg-[#080808] px-3.5 py-1.5 rounded-full border border-white/10">
-              <Sparkles size={12} />
+              <Sparkles size={12} className="animate-pulse" />
               <span>NODE STATUS: ACTIVE</span>
             </div>
-          </div>
+          </motion.div>
 
         </div>
 
         {/* Technical Competencies / Skills Section */}
-        <div className="space-y-8">
+        <motion.div 
+          className="space-y-8"
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: "-50px" }}
+          variants={staggerContainer}
+        >
           <div className="flex items-center justify-between">
-            <div>
+            <motion.div variants={staggerItem}>
               <div className="text-xs uppercase font-mono text-[#E51F2A] tracking-widest mb-1">CAPABILITIES</div>
               <h2 className="text-2xl sm:text-3xl font-heading font-bold text-white tracking-tight">Technical Arsenal</h2>
-            </div>
+            </motion.div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {SKILL_CATEGORIES.map((catGroup) => (
-              <div
+              <motion.div
+                variants={staggerItem}
                 key={catGroup.category}
-                className="p-6 rounded-2xl bg-[#111416]/80 border border-white/10 hover:border-[#E51F2A]/40 transition-all shadow-lg"
+                className="p-6 rounded-2xl bg-[#111416]/80 border border-white/10 hover:border-[#E51F2A]/40 hover:-translate-y-1 transition-all duration-300 shadow-lg"
               >
                 <h3 className="text-lg font-heading font-bold text-white mb-4 flex items-center justify-between">
                   <span>{catGroup.category}</span>
@@ -160,21 +198,27 @@ export const AboutPage: React.FC = () => {
                     </span>
                   ))}
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
-        </div>
+        </motion.div>
 
         {/* Timeline / Experience & Education */}
-        <div className="space-y-8">
+        <motion.div 
+          className="space-y-8"
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: "-50px" }}
+          variants={staggerContainer}
+        >
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
+            <motion.div variants={staggerItem}>
               <div className="text-xs uppercase font-mono text-[#E51F2A] tracking-widest mb-1">CHRONOLOGY</div>
               <h2 className="text-2xl sm:text-3xl font-heading font-bold text-white tracking-tight">Journey & Milestones</h2>
-            </div>
+            </motion.div>
 
             {/* Filter Tabs */}
-            <div className="flex items-center gap-1.5 p-1 rounded-xl bg-[#111416] border border-white/10">
+            <motion.div variants={staggerItem} className="flex items-center gap-1.5 p-1 rounded-xl bg-[#111416] border border-white/10">
               {(['All', 'Experience', 'Education', 'Achievements'] as const).map((tab) => (
                 <button
                   key={tab}
@@ -188,14 +232,15 @@ export const AboutPage: React.FC = () => {
                   {tab}
                 </button>
               ))}
-            </div>
+            </motion.div>
           </div>
 
           <div className="space-y-4">
             {filteredTimeline.map((item, idx) => (
-              <div
+              <motion.div
+                variants={staggerItem}
                 key={idx}
-                className="p-6 rounded-2xl bg-[#111416]/80 border border-white/10 hover:border-white/20 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4"
+                className="p-6 rounded-2xl bg-[#111416]/80 border border-white/10 hover:border-white/20 hover:-translate-y-1 transition-all duration-300 flex flex-col md:flex-row md:items-center justify-between gap-4"
               >
                 <div className="space-y-1.5">
                   <div className="flex items-center gap-3">
@@ -213,12 +258,12 @@ export const AboutPage: React.FC = () => {
                   <CheckCircle2 size={14} />
                   <span>VERIFIED RECORD</span>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
-        </div>
+        </motion.div>
 
       </div>
-    </div>
+    </motion.div>
   );
 };

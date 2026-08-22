@@ -24,13 +24,13 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import { PERSONAL_CONFIG } from '../../config/personalData';
 
-interface NavigationRailProps {
+interface TopNavigationProps {
   currentPath: string;
   onNavigate: (path: string) => void;
   onOpenAIModal: () => void;
 }
 
-export const NavigationRail: React.FC<NavigationRailProps> = ({ 
+export const TopNavigation: React.FC<TopNavigationProps> = ({ 
   currentPath, 
   onNavigate, 
   onOpenAIModal 
@@ -69,9 +69,11 @@ export const NavigationRail: React.FC<NavigationRailProps> = ({
         <button
           id="mobile-logo-btn"
           onClick={() => handleNavClick('/')}
-          className="flex items-center gap-2 cursor-pointer"
+          className="flex items-center gap-2 cursor-pointer group"
         >
-          <span className="text-2xl font-bold text-[#E51F2A] tracking-tighter">AS</span>
+          <div className="w-8 h-8 rounded-full border border-[#E51F2A] flex items-center justify-center group-hover:bg-[#E51F2A]/10 transition-colors">
+            <span className="text-sm font-bold text-[#E51F2A] tracking-tighter">AS</span>
+          </div>
         </button>
 
         <div className="flex items-center gap-2">
@@ -150,111 +152,88 @@ export const NavigationRail: React.FC<NavigationRailProps> = ({
         </div>
       )}
 
-      {/* Desktop Sleek Interface Vertical Navigation Rail */}
+      {/* Desktop Sleek Top Navigation */}
       <nav 
-        aria-label="Sidebar Navigation"
-        className="hidden lg:flex fixed top-0 left-0 bottom-0 w-[90px] bg-[#111416] border-r border-[#ffffff10] flex-col items-center py-8 z-50 select-none"
+        aria-label="Top Navigation"
+        className="hidden lg:flex fixed top-0 left-0 right-0 h-28 items-start pt-5 justify-between px-10 z-50 select-none bg-gradient-to-b from-[#050505] to-transparent pointer-events-none"
       >
-        {/* Top AS Logo */}
-        <div className="mb-10">
-          <button
-            id="desktop-logo-btn"
-            onClick={() => onNavigate('/')}
-            className="text-2xl font-bold text-[#E51F2A] tracking-tighter hover:opacity-80 transition-opacity cursor-pointer block"
-            title="Ahmmad Sakib — Home"
-          >
-            AS
-          </button>
-        </div>
-
-        {/* Center Navigation Icons Stack */}
-        <div className="flex-1 flex flex-col space-y-8 items-center">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = currentPath === item.path;
-            return (
-              <button
-                key={item.path}
-                id={`rail-nav-${item.name.toLowerCase()}`}
-                onClick={() => onNavigate(item.path)}
-                className={`group cursor-pointer relative flex flex-col items-center justify-center p-2 transition-colors ${
-                  isActive ? 'text-[#E51F2A]' : 'text-[#A8A1A1] hover:text-[#E51F2A]'
-                }`}
-                title={item.name}
-              >
-                {/* Active Indicator Bar on Left */}
-                {isActive && (
-                  <div className="absolute -left-4 w-1 h-6 bg-[#E51F2A] rounded-full shadow-[0_0_10px_#E51F2A]" />
-                )}
-                
-                <Icon size={24} className="transition-transform group-hover:scale-110" />
-                <span className="text-[9px] font-mono tracking-tight mt-1 opacity-70">
-                  {item.name}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Bottom System Controls & Social Links */}
-        <div className="mt-auto flex flex-col space-y-6 items-center">
-          {/* AI Assistant Node Trigger */}
-          <button
-            id="rail-ai-node-btn"
-            onClick={onOpenAIModal}
-            className="text-[#E51F2A] hover:opacity-80 transition-opacity cursor-pointer p-1"
-            title="AI Neural Assistant (Ctrl+K)"
-          >
-            <Sparkles size={20} />
-          </button>
-
-          {/* Social Icons with Sleek 40% Opacity */}
-          <div className="flex flex-col space-y-5 opacity-40 hover:opacity-100 transition-opacity items-center">
-            <a
-              id="rail-github-link"
-              href={PERSONAL_CONFIG.github}
-              target="_blank"
-              rel="noreferrer"
-              className="hover:text-[#E51F2A] transition-colors"
-              title="GitHub"
-            >
-              <Github size={18} />
-            </a>
-
-            <a
-              id="rail-linkedin-link"
-              href={PERSONAL_CONFIG.linkedin}
-              target="_blank"
-              rel="noreferrer"
-              className="hover:text-[#E51F2A] transition-colors"
-              title="LinkedIn"
-            >
-              <Linkedin size={18} />
-            </a>
-
-            <a
-              id="rail-instagram-link"
-              href={PERSONAL_CONFIG.instagram}
-              target="_blank"
-              rel="noreferrer"
-              className="hover:text-[#E51F2A] transition-colors"
-              title="Instagram"
-            >
-              <Instagram size={18} />
-            </a>
+        {/* Left: Logo & Brand (pointer-events-auto) */}
+        <div className="flex items-center gap-4 pointer-events-auto cursor-pointer group" onClick={() => onNavigate('/')}>
+          <div className="w-12 h-12 rounded-full border border-[#E51F2A] flex items-center justify-center group-hover:bg-[#E51F2A]/10 transition-colors shadow-[0_0_15px_rgba(229,31,42,0.15)]">
+            <span className="text-lg font-bold text-[#E51F2A] tracking-tighter">AS</span>
           </div>
+          <div className="flex flex-col">
+            <span className="text-sm font-bold tracking-[0.1em] text-white">AHMMAD SAKIB</span>
+            <span className="text-[10px] font-mono tracking-[0.2em] text-[#E51F2A]">DIGITAL WORLD</span>
+          </div>
+        </div>
 
-          {/* Auth indicator dot */}
-          <button
-            id="rail-auth-status-btn"
-            onClick={() => onNavigate('/login')}
-            className={`w-2.5 h-2.5 rounded-full border transition-all cursor-pointer ${
-              user 
-                ? 'bg-[#E51F2A] border-[#E51F2A] shadow-[0_0_8px_#E51F2A]' 
-                : 'bg-[#080808] border-white/30 hover:border-white'
-            }`}
-            title={user ? `Tier: ${role}` : 'Login'}
-          />
+        {/* Center: Navigation Pill (pointer-events-auto) */}
+        <div className="absolute left-1/2 -translate-x-1/2 top-5 flex items-center px-6 py-2.5 rounded-full bg-[#0a0a0a]/40 backdrop-blur-xl border border-white/10 pointer-events-auto shadow-2xl transition-all duration-300 hover:bg-[#0a0a0a]/50">
+          <div className="flex space-x-1 sm:space-x-2">
+            {navItems.map((item) => {
+              const isActive = currentPath === item.path;
+              return (
+                <button
+                  key={item.path}
+                  id={`desktop-nav-${item.name.toLowerCase()}`}
+                  onClick={() => onNavigate(item.path)}
+                  className={`relative px-4 py-2 rounded-full text-[11px] font-mono tracking-[0.15em] uppercase transition-all duration-300 cursor-pointer group hover:-translate-y-[2px] ${
+                    isActive ? 'text-[#E51F2A]' : 'text-[#A8A1A1] hover:text-[#E51F2A] hover:drop-shadow-[0_0_8px_rgba(229,31,42,0.5)]'
+                  }`}
+                >
+                  {/* Glowing Red Dot/Line for Active State underneath */}
+                  {isActive && (
+                    <div className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-3 h-[2px] bg-[#E51F2A] rounded-full shadow-[0_0_8px_#E51F2A]" />
+                  )}
+                  {item.name}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Right: Controls & User (pointer-events-auto) */}
+        <div className="flex items-center gap-5 pointer-events-auto">
+          {/* Admin / Control Center Button */}
+          {isOwner() && (
+            <button
+              onClick={() => onNavigate('/admin')}
+              className="px-5 py-2.5 rounded-full bg-[#111416]/60 backdrop-blur-md border border-[#E51F2A]/30 text-[#E51F2A] text-[10px] font-mono tracking-widest uppercase hover:bg-[#E51F2A]/10 hover:border-[#E51F2A]/60 transition-colors cursor-pointer shadow-[0_0_15px_rgba(229,31,42,0.1)]"
+            >
+              Control Center
+            </button>
+          )}
+
+          {/* AI Neural Node Trigger */}
+          {!isOwner() && (
+            <button
+              onClick={onOpenAIModal}
+              className="px-5 py-2 rounded-full border border-white/20 text-[#A8A1A1] text-[10px] font-mono tracking-widest uppercase hover:border-[#E51F2A] hover:text-[#E51F2A] transition-colors cursor-pointer flex items-center gap-2"
+            >
+              <Sparkles size={12} />
+              AI Agent
+            </button>
+          )}
+
+          {/* User Profile / Login */}
+          <div className="flex items-center cursor-pointer bg-[#0a0a0a]/40 border border-white/10 rounded-full p-1.5 pr-5 backdrop-blur-xl hover:border-[#E51F2A]/40 transition-colors shadow-lg" onClick={() => user ? onNavigate('/dashboard') : onNavigate('/login')}>
+            <div className="w-8 h-8 rounded-full bg-[#181c1f] overflow-hidden flex items-center justify-center mr-3 border border-white/10">
+              {profile?.photoURL ? (
+                <img src={profile.photoURL} alt="Profile" className="w-full h-full object-cover" />
+              ) : (
+                <User size={14} className="text-[#A8A1A1]" />
+              )}
+            </div>
+            <div className="flex flex-col">
+              <span className="text-[11px] font-bold text-white tracking-wide leading-tight">
+                {profile?.displayName?.split(' ')[0] || (user ? 'Authenticated' : 'Guest User')}
+              </span>
+              <span className="text-[9px] font-mono tracking-[0.1em] text-[#E51F2A] uppercase">
+                {role || 'Viewer'}
+              </span>
+            </div>
+          </div>
         </div>
       </nav>
     </>

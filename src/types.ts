@@ -220,8 +220,8 @@ export interface ContactFormData {
   message: string;
 }
 
-export type MediaPlatform = 'YOUTUBE' | 'SPOTIFY' | 'SOUNDCLOUD' | 'OTHER';
-export type MediaType = 'VIDEO' | 'PLAYLIST' | 'TRACK' | 'ALBUM' | 'PODCAST';
+export type MediaPlatform = 'YOUTUBE' | 'SPOTIFY' | 'SOUNDCLOUD' | 'GITHUB' | 'GOOGLE_DRIVE' | 'WEBSITE' | 'SOCIAL' | 'OTHER';
+export type MediaType = 'VIDEO' | 'PLAYLIST' | 'TRACK' | 'ALBUM' | 'PODCAST' | 'IMAGE' | 'ARTICLE' | 'DOCUMENT' | 'COURSE' | 'TOOL' | 'DOWNLOAD' | 'OTHER';
 export type MediaApprovalStatus = 'APPROVED' | 'PENDING' | 'REJECTED' | 'FLAGGED';
 
 export interface MediaLinkItem {

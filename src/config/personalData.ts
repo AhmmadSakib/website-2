@@ -599,9 +599,45 @@ export function parseMediaUrl(inputUrl: string): {
     };
   }
 
+  // 3. GitHub link matching
+  if (url.includes('github.com')) {
+    return {
+      platform: 'GITHUB',
+      mediaType: 'DOCUMENT',
+      embedUrl: url,
+      thumbnailUrl: 'https://images.unsplash.com/photo-1618401471353-b98afee0b2eb?w=800&auto=format&fit=crop&q=80',
+      cleanUrl: url,
+      detectedTitle: 'GitHub Repository'
+    };
+  }
+
+  // 4. Google Drive matching
+  if (url.includes('drive.google.com') || url.includes('docs.google.com')) {
+    return {
+      platform: 'GOOGLE_DRIVE',
+      mediaType: 'DOCUMENT',
+      embedUrl: url,
+      thumbnailUrl: 'https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=800&auto=format&fit=crop&q=80',
+      cleanUrl: url,
+      detectedTitle: 'Google Drive Document'
+    };
+  }
+
+  // 5. Social Media matching
+  if (url.includes('instagram.com') || url.includes('twitter.com') || url.includes('x.com') || url.includes('linkedin.com')) {
+    return {
+      platform: 'SOCIAL',
+      mediaType: 'OTHER',
+      embedUrl: url,
+      thumbnailUrl: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=800&auto=format&fit=crop&q=80',
+      cleanUrl: url,
+      detectedTitle: 'Social Media Post'
+    };
+  }
+
   return {
-    platform: 'OTHER',
-    mediaType: 'VIDEO',
+    platform: 'WEBSITE',
+    mediaType: 'ARTICLE',
     embedUrl: url,
     thumbnailUrl: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=800&auto=format&fit=crop&q=80',
     cleanUrl: url

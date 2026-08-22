@@ -58,8 +58,13 @@ export const ContactPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen text-[#F1F1F1] pb-24 px-4 sm:px-8 lg:px-12 pt-8 lg:pt-12">
-      <div className="w-full max-w-7xl mx-auto space-y-12">
+    <div className="min-h-screen text-[#F1F1F1] pb-24 px-4 sm:px-8 lg:px-12 pt-8 lg:pt-12 relative overflow-hidden">
+      
+      {/* Ambient Gradients */}
+      <div className="absolute top-0 right-1/4 w-[600px] h-[600px] bg-[#E51F2A]/10 rounded-full blur-[160px] pointer-events-none z-0" />
+      <div className="absolute top-1/3 left-10 w-[500px] h-[500px] bg-[#E51F2A]/5 rounded-full blur-[160px] pointer-events-none z-0" />
+      
+      <div className="w-full max-w-7xl relative z-10 mx-auto space-y-12">
         
         {/* Header */}
         <div className="relative pb-8 border-b border-white/10">

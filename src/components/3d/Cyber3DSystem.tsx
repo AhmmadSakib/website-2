@@ -3,7 +3,7 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Float } from '@react-three/drei';
 import * as THREE from 'three';
 
-export type Cyber3DVariant = 'hero' | 'projects' | 'about' | 'vault' | 'admin' | 'minimal';
+export type Cyber3DVariant = 'hero' | 'projects' | 'about' | 'vault' | 'admin' | 'minimal' | 'media' | 'skills' | 'certs';
 
 interface Cyber3DSystemProps {
   variant?: Cyber3DVariant;
@@ -136,107 +136,89 @@ function SculptureCore({
   }, [onClickPulse]);
 
   return (
-    <group ref={groupRef}>
-      {/* 1. PRIMARY OBJECT: Black Geometric Obsidian Block */}
-      <mesh position={[0.4, 0.2, 0.2]} scale={[1.25, 1.4, 0.9]}>
-        <boxGeometry args={[1, 1, 1]} />
-        <meshStandardMaterial
-          color="#080808"
-          roughness={0.35}
-          metalness={0.92}
-        />
-      </mesh>
-
-      {/* Wireframe accent cage for primary block */}
-      <mesh position={[0.4, 0.2, 0.2]} scale={[1.26, 1.41, 0.91]}>
-        <boxGeometry args={[1, 1, 1]} />
-        <meshBasicMaterial
-          color="#22262a"
-          wireframe
-          transparent
-          opacity={0.35}
-        />
-      </mesh>
-
-      {/* 2. SECONDARY OBJECT: Red Illuminated Transparent Cubes */}
-      <mesh ref={coreRef} position={[0, 0, 0]} scale={[0.95, 0.95, 0.95]}>
-        <boxGeometry args={[1, 1, 1]} />
+    <group ref={groupRef} rotation={[0.4, -0.5, 0]}>
+      {/* 1. PRIMARY OBJECT: Inner Glowing Core */}
+      <mesh ref={coreRef} position={[0, 0, 0]} scale={[0.8, 0.8, 0.8]}>
+        {variant === 'hero' ? <boxGeometry args={[1, 1, 1]} /> : variant === 'about' ? <sphereGeometry args={[0.7, 32, 32]} /> : variant === 'projects' ? <octahedronGeometry args={[0.8]} /> : variant === 'media' ? <torusKnotGeometry args={[0.5, 0.2, 100, 16]} /> : variant === 'vault' ? <icosahedronGeometry args={[0.8]} /> : variant === 'admin' ? <dodecahedronGeometry args={[0.8]} /> : <boxGeometry args={[1, 1, 1]} />}
         <meshPhysicalMaterial
           color="#E51F2A"
           emissive="#8C0B12"
-          emissiveIntensity={isHovered ? 2.8 : 1.8}
-          roughness={0.15}
-          metalness={0.3}
-          transmission={0.7}
-          thickness={0.8}
-          transparent
-          opacity={0.9}
-        />
-      </mesh>
-
-      {/* Secondary small crystalline red facet */}
-      <mesh position={[-0.65, -0.4, 0.45]} rotation={[0.4, 0.5, 0]} scale={[0.85, 0.6, 0.35]}>
-        <boxGeometry args={[1, 1, 1]} />
-        <meshPhysicalMaterial
-          color="#B5121B"
-          transmission={0.65}
+          emissiveIntensity={isHovered ? 4.0 : 2.5}
           roughness={0.1}
-          metalness={0.2}
+          metalness={0.5}
+          transmission={0.9}
+          thickness={1.2}
           transparent
-          opacity={0.85}
+          opacity={0.8}
         />
       </mesh>
 
-      {/* 3. ACCENT: Metallic White Surface Pillars */}
-      <mesh position={[-0.35, 0.7, -0.4]} rotation={[0, 0.25, 0.15]} scale={[0.3, 1.8, 0.3]}>
-        <boxGeometry args={[1, 1, 1]} />
-        <meshStandardMaterial
-          color="#F5F5F7"
-          roughness={0.12}
-          metalness={0.96}
-        />
-      </mesh>
-
-      {/* Metallic Platinum Node */}
-      <mesh position={[0.7, -0.6, -0.3]} scale={[0.45, 0.45, 0.45]}>
-        <octahedronGeometry args={[1]} />
-        <meshStandardMaterial
-          color="#FFFFFF"
-          roughness={0.1}
-          metalness={0.98}
-        />
-      </mesh>
-
-      {/* Orbiting Metallic White Torus Ring */}
-      <mesh ref={ringRef} scale={[1.8, 1.8, 1.8]}>
-        <torusGeometry args={[1, 0.018, 16, 64]} />
-        <meshStandardMaterial
+      {/* Primary Cube Wireframe */}
+      <mesh position={[0, 0, 0]} scale={[1.2, 1.2, 1.2]}>
+        {variant === 'hero' ? <boxGeometry args={[1, 1, 1]} /> : variant === 'about' ? <sphereGeometry args={[0.7, 32, 32]} /> : variant === 'projects' ? <octahedronGeometry args={[0.8]} /> : variant === 'media' ? <torusKnotGeometry args={[0.5, 0.2, 100, 16]} /> : variant === 'vault' ? <icosahedronGeometry args={[0.8]} /> : variant === 'admin' ? <dodecahedronGeometry args={[0.8]} /> : <boxGeometry args={[1, 1, 1]} />}
+        <meshBasicMaterial
           color="#E51F2A"
-          emissive="#65070B"
-          emissiveIntensity={0.6}
-          roughness={0.2}
-          metalness={0.9}
+          wireframe
+          transparent
+          opacity={isHovered ? 0.7 : 0.4}
         />
       </mesh>
+
+      {/* 2. RINGS: Concentric Orbiting Rings */}
+      <group ref={ringRef}>
+        {/* Inner Ring */}
+        <mesh rotation={[Math.PI / 4, 0, 0]} scale={[1.8, 1.8, 1.8]}>
+          <torusGeometry args={[1, 0.005, 16, 100]} />
+          <meshBasicMaterial color="#ffffff" transparent opacity={0.3} />
+        </mesh>
+        
+        {/* Middle Ring */}
+        <mesh rotation={[0, Math.PI / 3, 0]} scale={[2.2, 2.2, 2.2]}>
+          <torusGeometry args={[1, 0.008, 16, 100]} />
+          <meshStandardMaterial
+            color="#080808"
+            metalness={1}
+            roughness={0.2}
+          />
+        </mesh>
+
+        {/* Outer Ring */}
+        <mesh rotation={[0, 0, Math.PI / 6]} scale={[2.6, 2.6, 2.6]}>
+          <torusGeometry args={[1, 0.004, 16, 100]} />
+          <meshBasicMaterial color="#E51F2A" transparent opacity={0.6} />
+        </mesh>
+        
+        {/* Glowing Edge Accents on Rings */}
+        <mesh rotation={[Math.PI / 4, 0, 0]} scale={[1.8, 1.8, 1.8]}>
+          <torusGeometry args={[1.02, 0.015, 16, 64, Math.PI / 2]} />
+          <meshBasicMaterial color="#E51F2A" />
+        </mesh>
+      </group>
 
       {/* Internal Crimson Point Light */}
-      <pointLight position={[0, 0, 0]} color="#E51F2A" intensity={isHovered ? 14 : 9} distance={6} decay={2} />
+      <pointLight position={[0, 0, 0]} color="#E51F2A" intensity={isHovered ? 20 : 12} distance={8} decay={1.5} />
 
-      {/* 4. SMALL OBJECTS: Floating Cubes, Spheres & Rings */}
+      {/* 3. SMALL OBJECTS: Floating Particles & Satellites */}
       <group ref={satellitesRef}>
         {miniObjects.map((item) => (
-          <Float key={item.id} speed={item.speed} rotationIntensity={1.2} floatIntensity={1.4}>
-            <mesh position={item.pos} scale={[item.size, item.size, item.size]}>
-              {item.type === 'cube' && <boxGeometry args={[1, 1, 1]} />}
-              {item.type === 'sphere' && <sphereGeometry args={[0.7, 12, 12]} />}
-              {item.type === 'ring' && <torusGeometry args={[0.8, 0.15, 8, 24]} />}
+          <Float key={item.id} speed={item.speed} rotationIntensity={1.5} floatIntensity={2}>
+            <mesh position={item.pos} scale={[item.size * 0.6, item.size * 0.6, item.size * 0.6]}>
+              {item.type === 'cube' ? (
+                <boxGeometry args={[1, 1, 1]} />
+              ) : item.type === 'sphere' ? (
+                <sphereGeometry args={[0.5, 8, 8]} />
+              ) : (
+                <octahedronGeometry args={[0.5]} />
+              )}
               
               <meshStandardMaterial
                 color={item.color}
-                emissive={item.color === '#E51F2A' ? '#8C0B12' : '#000000'}
-                emissiveIntensity={item.color === '#E51F2A' ? 1.4 : 0}
-                roughness={0.25}
-                metalness={0.85}
+                emissive={item.color === '#E51F2A' ? '#E51F2A' : '#000000'}
+                emissiveIntensity={item.color === '#E51F2A' ? 2.5 : 0}
+                roughness={0.2}
+                metalness={0.9}
+                transparent
+                opacity={0.9}
               />
             </mesh>
           </Float>

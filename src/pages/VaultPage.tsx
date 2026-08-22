@@ -18,6 +18,7 @@ import {
   Bot,
   Sparkles
 } from 'lucide-react';
+import { motion } from 'motion/react';
 import { VAULT_FOLDERS, INITIAL_VAULT_FILES } from '../config/personalData';
 import { VaultFileItem } from '../types';
 import { useAuth } from '../context/AuthContext';
@@ -27,6 +28,7 @@ import { FilePreviewModal } from '../components/vault/FilePreviewModal';
 import { PermissionManagerModal } from '../components/admin/PermissionManagerModal';
 import { Cyber3DSystem } from '../components/3d/Cyber3DSystem';
 import { db, collection, onSnapshot, doc, deleteDoc, setDoc } from '../lib/firebase';
+import { pageTransitions, staggerContainer, staggerItem } from '../lib/motion';
 
 interface VaultPageProps {
   initialFolderSlug?: string;
@@ -169,33 +171,49 @@ export const VaultPage: React.FC<VaultPageProps> = ({ initialFolderSlug = 'all',
   };
 
   return (
-    <div className="min-h-screen text-[#F1F1F1] pb-24 px-4 sm:px-8 lg:px-12 pt-8 lg:pt-12">
-      <div className="w-full max-w-7xl mx-auto space-y-10">
+    <motion.div 
+      className="min-h-screen text-[#F1F1F1] pb-24 px-4 sm:px-8 lg:px-12 pt-8 lg:pt-12 relative overflow-hidden"
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      variants={pageTransitions}
+    >
+      
+      {/* Ambient Gradients */}
+      <div className="absolute top-0 right-1/4 w-[600px] h-[600px] bg-[#E51F2A]/10 rounded-full blur-[160px] pointer-events-none z-0" />
+      <div className="absolute top-1/3 left-10 w-[500px] h-[500px] bg-[#E51F2A]/5 rounded-full blur-[160px] pointer-events-none z-0" />
+      
+      <div className="w-full max-w-7xl relative z-10 mx-auto space-y-10">
         
         {/* Header Bar */}
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pb-8 border-b border-white/10">
+        <motion.div 
+          variants={staggerContainer}
+          initial="hidden"
+          animate="show"
+          className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pb-8 border-b border-white/10"
+        >
           <div className="flex items-center gap-6">
-            <div className="hidden sm:block w-24 h-24 shrink-0">
+            <motion.div variants={staggerItem} className="hidden sm:block w-24 h-24 shrink-0">
               <Cyber3DSystem variant="vault" height={96} />
-            </div>
+            </motion.div>
             <div>
-              <div className="flex items-center gap-3 mb-2">
+              <motion.div variants={staggerItem} className="flex items-center gap-3 mb-2">
                 <div className="w-8 h-[2px] bg-[#E51F2A]" />
                 <span className="text-[#E51F2A] text-xs font-mono tracking-widest uppercase">
                   Zero-Trust Storage Layer
                 </span>
-              </div>
-              <h1 className="text-4xl sm:text-5xl font-heading font-extrabold text-white tracking-tight">
+              </motion.div>
+              <motion.h1 variants={staggerItem} className="text-4xl sm:text-5xl font-heading font-extrabold text-white tracking-tight">
                 MY <span className="text-[#E51F2A]">VAULT</span>
-              </h1>
-              <p className="text-sm sm:text-base text-[#A8A1A1] mt-1">
+              </motion.h1>
+              <motion.p variants={staggerItem} className="text-sm sm:text-base text-[#A8A1A1] mt-1">
                 Your files, encrypted, secured, and organized.
-              </p>
+              </motion.p>
             </div>
           </div>
 
           {/* Authorization Status Badge & Actions */}
-          <div className="flex flex-wrap items-center gap-3">
+          <motion.div variants={staggerItem} className="flex flex-wrap items-center gap-3">
             <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[#111416] border border-white/10 text-xs font-mono">
               <span className="text-[#A8A1A1]">TIER:</span>
               <span className="text-[#E51F2A] font-bold">{role}</span>
@@ -204,7 +222,7 @@ export const VaultPage: React.FC<VaultPageProps> = ({ initialFolderSlug = 'all',
             <button
               id="vault-ai-assistant-btn"
               onClick={() => onNavigate('/vault/ai')}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#181c1f] hover:bg-white/10 border border-white/10 text-white font-mono text-xs transition-all cursor-pointer"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#181c1f] hover:bg-white/10 border border-white/10 text-white font-mono text-xs transition-all cursor-pointer hover:shadow-[0_0_15px_rgba(229,31,42,0.2)]"
             >
               <Bot size={15} className="text-[#E51F2A]" />
               <span>Sakib AI</span>
@@ -214,7 +232,7 @@ export const VaultPage: React.FC<VaultPageProps> = ({ initialFolderSlug = 'all',
               <button
                 id="vault-owner-filemgr-btn"
                 onClick={() => onNavigate('/admin/files')}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#181c1f] hover:bg-white/10 border border-white/10 text-white font-mono text-xs transition-all cursor-pointer"
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#181c1f] hover:bg-white/10 border border-white/10 text-white font-mono text-xs transition-all cursor-pointer hover:border-[#E51F2A]/50"
               >
                 <HardDrive size={15} className="text-[#E51F2A]" />
                 <span>File Manager</span>
@@ -225,7 +243,7 @@ export const VaultPage: React.FC<VaultPageProps> = ({ initialFolderSlug = 'all',
               <button
                 id="vault-upload-trigger-btn"
                 onClick={() => setIsUploadOpen(true)}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#E51F2A] hover:bg-[#B5121B] text-white font-bold text-xs sm:text-sm tracking-wide transition-all shadow-[0_0_20px_rgba(229,31,42,0.4)] cursor-pointer"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#E51F2A] hover:bg-[#B5121B] text-white font-bold text-xs sm:text-sm tracking-wide transition-all shadow-[0_0_20px_rgba(229,31,42,0.4)] hover:-translate-y-0.5 hover:shadow-[0_0_25px_rgba(229,31,42,0.6)] cursor-pointer"
               >
                 <Upload size={15} />
                 <span>UPLOAD</span>
@@ -240,11 +258,16 @@ export const VaultPage: React.FC<VaultPageProps> = ({ initialFolderSlug = 'all',
                 <span>Elevate Privileges</span>
               </button>
             )}
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
         {/* Folder Directory Grid */}
-        <div className="space-y-4">
+        <motion.div 
+          className="space-y-4"
+          initial="hidden"
+          animate="show"
+          variants={staggerContainer}
+        >
           <div className="flex items-center justify-between">
             <h2 className="text-xs uppercase font-mono text-[#A8A1A1] tracking-wider">
               STORAGE DIRECTORIES
@@ -263,11 +286,12 @@ export const VaultPage: React.FC<VaultPageProps> = ({ initialFolderSlug = 'all',
             {VAULT_FOLDERS.map((folder) => {
               const isSelected = selectedFolder === folder.id;
               return (
-                <div
+                <motion.div
+                  variants={staggerItem}
                   key={folder.id}
                   id={`vault-folder-${folder.id}`}
                   onClick={() => setSelectedFolder(isSelected ? 'all' : folder.id)}
-                  className={`p-5 rounded-2xl transition-all duration-200 cursor-pointer flex flex-col justify-between border ${
+                  className={`p-5 rounded-2xl transition-all duration-300 cursor-pointer flex flex-col justify-between border hover:-translate-y-1 ${
                     isSelected
                       ? 'bg-[#181c1f] border-[#E51F2A] shadow-[0_0_25px_rgba(229,31,42,0.25)]'
                       : 'bg-[#111416] border-white/10 hover:border-white/30 hover:bg-[#181c1f]'
@@ -286,14 +310,18 @@ export const VaultPage: React.FC<VaultPageProps> = ({ initialFolderSlug = 'all',
                       <span>{formatSize(folder.totalSize)}</span>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               );
             })}
           </div>
-        </div>
+        </motion.div>
 
         {/* Search & Filter Bar */}
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 p-4 rounded-2xl bg-[#111416]/80 backdrop-blur-md border border-white/10">
+        <motion.div 
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 p-4 rounded-2xl bg-[#111416]/80 backdrop-blur-md border border-white/10"
+        >
           
           <div className="relative w-full md:w-80">
             <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#A8A1A1]" />
@@ -303,7 +331,7 @@ export const VaultPage: React.FC<VaultPageProps> = ({ initialFolderSlug = 'all',
               placeholder="Search files..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#080808] border border-white/10 text-xs sm:text-sm text-white placeholder-[#A8A1A1]/60 focus:outline-none focus:border-[#E51F2A]"
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#080808] border border-white/10 text-xs sm:text-sm text-white placeholder-[#A8A1A1]/60 focus:outline-none focus:border-[#E51F2A] transition-colors"
             />
           </div>
 
@@ -323,10 +351,14 @@ export const VaultPage: React.FC<VaultPageProps> = ({ initialFolderSlug = 'all',
             ))}
           </div>
 
-        </div>
+        </motion.div>
 
         {/* Files Table View */}
-        <div className="rounded-2xl bg-[#111416]/90 border border-white/10 overflow-hidden shadow-xl">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="rounded-2xl bg-[#111416]/90 border border-white/10 overflow-hidden shadow-xl"
+        >
           <div className="p-4 sm:p-5 border-b border-white/10 flex items-center justify-between">
             <div className="flex items-center gap-2 text-xs font-mono uppercase text-[#A8A1A1]">
               <HardDrive size={14} className="text-[#E51F2A]" />
@@ -370,7 +402,10 @@ export const VaultPage: React.FC<VaultPageProps> = ({ initialFolderSlug = 'all',
                 </thead>
                 <tbody className="divide-y divide-white/5">
                   {accessibleFiles.map((file) => (
-                    <tr
+                    <motion.tr
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 10 }}
                       key={file.id}
                       id={`vault-file-row-${file.id}`}
                       className="hover:bg-white/5 transition-colors group cursor-pointer"
@@ -466,13 +501,13 @@ export const VaultPage: React.FC<VaultPageProps> = ({ initialFolderSlug = 'all',
                           )}
                         </div>
                       </td>
-                    </tr>
+                    </motion.tr>
                   ))}
                 </tbody>
               </table>
             </div>
           )}
-        </div>
+        </motion.div>
 
       </div>
 
@@ -503,6 +538,6 @@ export const VaultPage: React.FC<VaultPageProps> = ({ initialFolderSlug = 'all',
           }}
         />
       )}
-    </div>
+    </motion.div>
   );
 };

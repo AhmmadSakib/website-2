@@ -2,9 +2,9 @@
 
 @layer base {
   :root {
-    --bg-main: #080808;
-    --bg-surface: #111416;
-    --bg-surface-elevated: #181c1f;
+    --bg-main: #050505;
+    --bg-surface: #0a0a0a;
+    --bg-surface-elevated: #111416;
     --accent-dark-red: #65070B;
     --accent-crimson: #8C0B12;
     --accent-red-mid: #B5121B;
@@ -18,7 +18,7 @@
   }
 
   body {
-    background-color: #080808;
+    background-color: #050505;
     color: #F1F1F1;
     font-family: var(--font-body);
     min-height: 100vh;

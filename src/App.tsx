@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { PermissionsProvider } from './context/PermissionsContext';
-import { NavigationRail } from './components/layout/NavigationRail';
+import { TopNavigation } from './components/layout/TopNavigation';
+import { CommandPalette } from './components/common/CommandPalette';
 import { CustomCursor } from './components/common/CustomCursor';
 import { InitialLoadingScreen } from './components/common/InitialLoadingScreen';
 import { HomePage } from './pages/HomePage';
@@ -26,6 +27,7 @@ import { AdminMediaPage } from './pages/AdminMediaPage';
 import { SakibAIPage } from './pages/SakibAIPage';
 import { MediaHubPage } from './pages/MediaHubPage';
 import { NeuralNodeModal } from './components/ai/NeuralNodeModal';
+import { AnimatePresence, motion } from 'motion/react';
 
 function AppContent() {
   const [currentPath, setCurrentPath] = useState<string>(() => {
@@ -216,22 +218,34 @@ function AppContent() {
         <InitialLoadingScreen onComplete={() => setIsInitialLoading(false)} />
       )}
 
-      <div className="min-h-screen bg-[#080808] text-white flex overflow-x-hidden selection:bg-[#E51F2A] selection:text-white">
+      <div className="min-h-screen bg-[#050505] text-white flex overflow-x-hidden selection:bg-[#E51F2A] selection:text-white">
         <CustomCursor />
+        <CommandPalette onNavigate={navigateTo} />
 
         {!isAuthView && (
-          <NavigationRail
+          <TopNavigation
             currentPath={currentPath}
             onNavigate={navigateTo}
             onOpenAIModal={() => setIsAIModalOpen(true)}
           />
         )}
 
-        <main className={`flex-1 w-full min-h-screen flex flex-col justify-between ${!isAuthView ? 'pl-0 lg:pl-[90px] pt-16 lg:pt-0' : 'p-0'}`}>
-          {renderActivePage()}
+        <main className={`flex-1 w-full min-h-screen flex flex-col justify-between ${!isAuthView ? 'pl-0 pt-16 lg:pt-24' : 'p-0'}`}>
+          <AnimatePresence mode="wait">
+            <motion.div 
+              key={currentPath.split('/')[1] || 'home'} 
+              className="flex-1 flex flex-col"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              {renderActivePage()}
+            </motion.div>
+          </AnimatePresence>
 
           {!isAuthView && (
-            <footer className="py-6 px-8 border-t border-white/5 bg-[#080808] flex flex-col sm:flex-row items-center justify-between text-xs text-[#A8A1A1] font-mono gap-4">
+            <footer className="py-6 px-8 border-t border-white/5 bg-[#050505] flex flex-col sm:flex-row items-center justify-between text-xs text-[#A8A1A1] font-mono gap-4 relative z-10">
               <div className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#E51F2A]" />
                 <span>AHMMAD SAKIB • DIGITAL WORLD VAULT</span>

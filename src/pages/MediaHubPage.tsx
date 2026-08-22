@@ -36,6 +36,7 @@ import {
   CheckCheck
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { Cyber3DSystem } from '../components/3d/Cyber3DSystem';
 import { MediaLinkItem, MediaPlatform, MediaType } from '../types';
 import { INITIAL_MEDIA_LINKS, parseMediaUrl } from '../config/personalData';
 import { 
@@ -71,7 +72,8 @@ export const MediaHubPage: React.FC<MediaHubPageProps> = ({ onNavigate }) => {
   const [inputUrl, setInputUrl] = useState<string>('');
   const [inputTitle, setInputTitle] = useState<string>('');
   const [inputUsername, setInputUsername] = useState<string>('');
-  const [inputCategory, setInputCategory] = useState<string>('Coding Beats');
+  const [inputCategory, setInputCategory] = useState<string>('AUTO');
+  const [inputVisibility, setInputVisibility] = useState<'PUBLIC'|'PRIVATE'|'SHARED'>('PUBLIC');
   const [inputDescription, setInputDescription] = useState<string>('');
   const [inputTags, setInputTags] = useState<string>('beats, focus, dev');
   const [parsedPreview, setParsedPreview] = useState<ReturnType<typeof parseMediaUrl> | null>(null);
@@ -185,6 +187,9 @@ export const MediaHubPage: React.FC<MediaHubPageProps> = ({ onNavigate }) => {
       
       // Visibility rules
       if (!ownerMode) {
+        if (link.visibility === 'PRIVATE') {
+          if (!currentUid || link.userId !== currentUid) return false;
+        }
         if (status === 'REJECTED') return false;
         if (status === 'PENDING') {
           // Only show pending items if current logged-in user submitted it
@@ -194,8 +199,20 @@ export const MediaHubPage: React.FC<MediaHubPageProps> = ({ onNavigate }) => {
         }
       }
 
-      const matchesPlatform = selectedPlatform === 'ALL' || link.platform === selectedPlatform;
-      const matchesCategory = selectedCategory === 'ALL' || link.category === selectedCategory;
+      let matchesCategory = true;
+      if (selectedCategory !== 'ALL') {
+        const cat = selectedCategory;
+        if (cat === 'VIDEOS') matchesCategory = ['YOUTUBE', 'VIDEO'].includes(link.mediaType) || link.platform === 'YOUTUBE';
+        else if (cat === 'WEBSITES') matchesCategory = link.mediaType === 'ARTICLE' || link.platform === 'WEBSITE';
+        else if (cat === 'PROJECTS') matchesCategory = link.category?.toUpperCase() === 'PROJECT';
+        else if (cat === 'ARTICLES') matchesCategory = link.mediaType === 'ARTICLE';
+        else if (cat === 'DOCUMENTS') matchesCategory = link.mediaType === 'DOCUMENT';
+        else if (cat === 'GITHUB') matchesCategory = link.platform === 'GITHUB';
+        else if (cat === 'SOCIAL') matchesCategory = link.platform === 'SOCIAL';
+        else if (cat === 'COURSES') matchesCategory = link.mediaType === 'COURSE';
+        else if (cat === 'TOOLS') matchesCategory = link.mediaType === 'TOOL';
+      }
+
       const q = searchQuery.toLowerCase().trim();
       const matchesSearch =
         !q ||
@@ -204,9 +221,9 @@ export const MediaHubPage: React.FC<MediaHubPageProps> = ({ onNavigate }) => {
         (link.description && link.description.toLowerCase().includes(q)) ||
         (link.tags && link.tags.some((t) => t.toLowerCase().includes(q)));
 
-      return matchesPlatform && matchesCategory && matchesSearch;
+      return matchesCategory && matchesSearch;
     });
-  }, [links, selectedPlatform, selectedCategory, searchQuery, isOwner, user]);
+  }, [links, selectedCategory, searchQuery, isOwner, user]);
 
   // Active tour link item
   const activeTourLink = useMemo(() => {
@@ -287,8 +304,21 @@ export const MediaHubPage: React.FC<MediaHubPageProps> = ({ onNavigate }) => {
     setUploadError(null);
     setSubmitSuccessMessage(null);
 
-    if (!inputUrl.trim()) {
-      setUploadError('Please enter a valid YouTube or Spotify link.');
+    const urlValue = inputUrl.trim();
+    if (!urlValue) {
+      setUploadError('Please enter a valid link.');
+      return;
+    }
+    
+    // Strict URL scheme validation to prevent XSS / malicious links
+    try {
+      const urlObj = new URL(urlValue);
+      if (urlObj.protocol !== 'http:' && urlObj.protocol !== 'https:') {
+        setUploadError('Only http and https links are allowed.');
+        return;
+      }
+    } catch (err) {
+      setUploadError('Invalid URL format.');
       return;
     }
 
@@ -302,7 +332,7 @@ export const MediaHubPage: React.FC<MediaHubPageProps> = ({ onNavigate }) => {
       return;
     }
 
-    const parsed = parseMediaUrl(inputUrl.trim());
+    const parsed = parseMediaUrl(urlValue);
     setIsSubmitting(true);
 
     const newId = `media-${Date.now()}`;
@@ -319,20 +349,20 @@ export const MediaHubPage: React.FC<MediaHubPageProps> = ({ onNavigate }) => {
     const newLink: MediaLinkItem = {
       id: newId,
       title: inputTitle.trim(),
-      url: inputUrl.trim(),
+      url: urlValue,
       embedUrl: parsed.embedUrl,
       platform: parsed.platform,
-      mediaType: parsed.mediaType,
+      mediaType: inputCategory !== 'AUTO' ? (inputCategory as any) : parsed.mediaType,
       username: cleanUsername,
       userId: user?.uid,
       userAvatar: user?.photoURL || undefined,
       description: inputDescription.trim() || `Shared by @${cleanUsername}`,
-      category: inputCategory,
+      category: inputCategory !== 'AUTO' ? inputCategory : 'General',
       tags: tagsArray.length > 0 ? tagsArray : ['Stream', parsed.platform],
       thumbnailUrl: parsed.thumbnailUrl,
       likes: 1,
       featured: ownerUser,
-      visibility: 'PUBLIC',
+      visibility: inputVisibility,
       status: initialStatus,
       verified: isVerified,
       reviewedBy: ownerUser ? (user?.email || 'owner') : undefined,
@@ -447,13 +477,19 @@ export const MediaHubPage: React.FC<MediaHubPageProps> = ({ onNavigate }) => {
               <span className="text-[#E51F2A] font-semibold">{filteredLinks.length} STREAMS CURATED</span>
             </div>
 
-            <h1 className="text-4xl sm:text-5xl font-heading font-extrabold text-white tracking-tight leading-tight">
-              YouTube & Spotify <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#E51F2A] via-[#FF5E62] to-[#1DB954]">Media Hub</span>
-            </h1>
-
-            <p className="text-sm sm:text-base text-[#A8A1A1] leading-relaxed">
-              Explore verified coding playlists, engineering masterclasses, and community sonic streams. Take the interactive guided walkthrough or submit your own YouTube and Spotify links.
-            </p>
+            <div className="flex items-center gap-6">
+              <div className="hidden sm:block">
+                <Cyber3DSystem variant="media" height={140} />
+              </div>
+              <div>
+                <h1 className="text-4xl sm:text-5xl font-heading font-extrabold text-white tracking-tight leading-tight">
+                  THE DIGITAL <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#E51F2A] to-[#B5121B]">MEDIA HUB</span>
+                </h1>
+                <p className="text-sm sm:text-base text-[#A8A1A1] leading-relaxed mt-2">
+                  A DIGITAL LIBRARY OF VIDEOS, LINKS, IDEAS AND EXPERIENCES.
+                </p>
+              </div>
+            </div>
           </div>
 
           {/* Action CTAs */}
@@ -468,14 +504,16 @@ export const MediaHubPage: React.FC<MediaHubPageProps> = ({ onNavigate }) => {
               <Sparkles size={15} className="text-white/80" />
             </button>
 
-            <button
-              id="open-upload-modal-btn"
-              onClick={() => setIsUploadModalOpen(true)}
-              className="flex items-center gap-2 px-5 py-3.5 rounded-2xl bg-[#111416] hover:bg-[#181c1f] text-white border border-white/10 hover:border-[#E51F2A]/40 font-heading font-semibold text-xs sm:text-sm transition-all cursor-pointer shadow-lg"
-            >
-              <Plus size={16} className="text-[#E51F2A]" />
-              <span>SUBMIT STREAM LINK</span>
-            </button>
+            {isOwner() && (
+              <button
+                id="open-upload-modal-btn"
+                onClick={() => setIsUploadModalOpen(true)}
+                className="flex items-center gap-2 px-5 py-3.5 rounded-2xl bg-[#080808] hover:bg-white/5 text-white border border-white/10 hover:border-[#E51F2A]/40 font-heading font-semibold text-xs sm:text-sm transition-all cursor-pointer shadow-lg"
+              >
+                <Plus size={16} className="text-[#E51F2A]" />
+                <span>ADD CONTENT</span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -753,66 +791,32 @@ export const MediaHubPage: React.FC<MediaHubPageProps> = ({ onNavigate }) => {
               )}
             </div>
 
-            {/* Platform Filter Buttons */}
-            <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-[#080808] border border-white/10 shrink-0">
-              <button
-                id="filter-platform-all"
-                onClick={() => setSelectedPlatform('ALL')}
-                className={`px-3.5 py-2 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer ${
-                  selectedPlatform === 'ALL'
-                    ? 'bg-white text-black shadow-md'
-                    : 'text-[#A8A1A1] hover:text-white'
-                }`}
-              >
-                ALL
-              </button>
-
-              <button
-                id="filter-platform-yt"
-                onClick={() => setSelectedPlatform('YOUTUBE')}
-                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer ${
-                  selectedPlatform === 'YOUTUBE'
-                    ? 'bg-[#FF0000] text-white shadow-[0_0_15px_rgba(255,0,0,0.4)]'
-                    : 'text-[#A8A1A1] hover:text-white'
-                }`}
-              >
-                <Youtube size={14} />
-                <span>YOUTUBE</span>
-              </button>
-
-              <button
-                id="filter-platform-spotify"
-                onClick={() => setSelectedPlatform('SPOTIFY')}
-                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer ${
-                  selectedPlatform === 'SPOTIFY'
-                    ? 'bg-[#1DB954] text-black shadow-[0_0_15px_rgba(29,185,84,0.4)]'
-                    : 'text-[#A8A1A1] hover:text-white'
-                }`}
-              >
-                <Music size={14} />
-                <span>SPOTIFY</span>
-              </button>
-            </div>
-
           </div>
 
-          {/* Category Chips Bar */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-            <span className="text-[11px] font-mono uppercase text-[#A8A1A1] shrink-0 mr-1 flex items-center gap-1">
-              <Filter size={12} />
-              <span>Genres:</span>
-            </span>
-            {categories.map((cat) => (
+          {/* Unified Filters */}
+          <div className="flex flex-wrap items-center gap-2 pt-2">
+            {[
+              { id: 'ALL', label: 'ALL' },
+              { id: 'VIDEOS', label: 'VIDEOS' },
+              { id: 'WEBSITES', label: 'WEBSITES' },
+              { id: 'PROJECTS', label: 'PROJECTS' },
+              { id: 'ARTICLES', label: 'ARTICLES' },
+              { id: 'DOCUMENTS', label: 'DOCUMENTS' },
+              { id: 'GITHUB', label: 'GITHUB' },
+              { id: 'SOCIAL', label: 'SOCIAL' },
+              { id: 'COURSES', label: 'COURSES' },
+              { id: 'TOOLS', label: 'TOOLS' }
+            ].map((cat) => (
               <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-mono whitespace-nowrap transition-all cursor-pointer ${
-                  selectedCategory === cat
-                    ? 'bg-[#E51F2A] text-white font-bold shadow-sm'
-                    : 'bg-[#080808] text-[#A8A1A1] border border-white/5 hover:text-white hover:border-white/20'
+                key={cat.id}
+                onClick={() => setSelectedCategory(cat.id)}
+                className={`px-4 py-2 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer border ${
+                  selectedCategory === cat.id
+                    ? 'bg-[#E51F2A]/15 text-[#E51F2A] border-[#E51F2A]/40 shadow-[0_0_15px_rgba(229,31,42,0.2)]'
+                    : 'bg-[#080808] text-[#A8A1A1] hover:text-white border-white/5 hover:border-white/20'
                 }`}
               >
-                {cat}
+                {cat.label}
               </button>
             ))}
           </div>
@@ -1128,20 +1132,41 @@ export const MediaHubPage: React.FC<MediaHubPageProps> = ({ onNavigate }) => {
 
                 <div className="space-y-1.5">
                   <label className="text-xs font-mono uppercase tracking-wider text-[#A8A1A1]">
-                    Category / Genre
+                    Visibility *
                   </label>
                   <select
-                    id="media-input-category"
+                    id="media-input-visibility"
+                    value={inputVisibility}
+                    onChange={(e) => setInputVisibility(e.target.value as any)}
+                    className="w-full px-4 py-3 rounded-2xl bg-[#080808] border border-white/10 text-white focus:outline-none focus:border-[#E51F2A] text-xs font-mono"
+                  >
+                    <option value="PUBLIC">Public Portfolio</option>
+                    <option value="PRIVATE">Private (Owner Only)</option>
+                    <option value="SHARED">Shared (Authorized Users)</option>
+                  </select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-mono uppercase tracking-wider text-[#A8A1A1]">
+                    Content Type
+                  </label>
+                  <select
+                    id="media-input-type"
                     value={inputCategory}
                     onChange={(e) => setInputCategory(e.target.value)}
-                    className="w-full px-4 py-3 rounded-2xl bg-[#080808] border border-white/10 text-white focus:outline-none focus:border-[#E51F2A] text-xs"
+                    className="w-full px-4 py-3 rounded-2xl bg-[#080808] border border-white/10 text-white focus:outline-none focus:border-[#E51F2A] text-xs font-mono"
                   >
-                    <option value="Coding Beats">Coding Beats</option>
-                    <option value="Lofi & Chill">Lofi & Chill</option>
-                    <option value="Deep Focus">Deep Focus</option>
-                    <option value="Tech & Tutorials">Tech & Tutorials</option>
-                    <option value="Cyberpunk">Cyberpunk</option>
-                    <option value="Talks & Podcasts">Talks & Podcasts</option>
+                    <option value="AUTO">Auto Detect</option>
+                    <option value="WEBSITE">Website</option>
+                    <option value="YOUTUBE">YouTube Video</option>
+                    <option value="PROJECT">Project</option>
+                    <option value="ARTICLE">Article</option>
+                    <option value="DOCUMENT">Document</option>
+                    <option value="GITHUB">GitHub Repo</option>
+                    <option value="SOCIAL">Social Media</option>
+                    <option value="TOOL">Tool</option>
+                    <option value="COURSE">Course</option>
+                    <option value="OTHER">Other</option>
                   </select>
                 </div>
               </div>
